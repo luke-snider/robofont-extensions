@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>addToMenu</key>
+	<array>
+		<dict>
+			<key>path</key>
+			<string>Interpol_steps_preview_V1.py</string>
+			<key>preferredName</key>
+			<string>Interpol Steps Preview</string>
+			<key>shortKey</key>
+			<string></string>
+		</dict>
+	</array>
+	<key>developer</key>
+	<string>Lukas Schneider</string>
+	<key>developerURL</key>
+	<string>www.snider-inc.de</string>
+	<key>html</key>
+	<false/>
+	<key>launchAtStartUp</key>
+	<integer>0</integer>
+	<key>mainScript</key>
+	<string></string>
+	<key>name</key>
+	<string>Interpol Steps Preview</string>
+	<key>timeStamp</key>
+	<real>1403687490.175643</real>
+	<key>version</key>
+	<string>1.0</string>
+</dict>
+</plist>
