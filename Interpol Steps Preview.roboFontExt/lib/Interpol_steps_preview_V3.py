@@ -1,7 +1,7 @@
 """
-Interpol Steps Preview V 1.0
+Interpol Steps Preview V 2.0
 Lukas Schneider, 2014
-with some lines of code of Frederik Berlaen's quick interpolate script.
+with a few lines of code of Frederik Berlaen's quick interpolate script.
 
 """
 
@@ -12,46 +12,54 @@ import vanilla
 from defconAppKit.windows.baseWindow import BaseWindowController
 from defconAppKit.controls.glyphLineView import GlyphLineView
 from mojo import events
-#from vanilla import EditText
+from mojo.tools import IntersectGlyphWithLine
+from lib.UI.stepper import EditIntStepper
 
 
 class InterpolateStepView(BaseWindowController):
 
     def __init__(self):
-        
         self.value = 150
-        self.w = vanilla.Window((700, 230), "Interpol Steps Preview", minSize=(100, 200))
-        self.w.infoOutput = TextBox((10,5,200,20), "Open 2 Fonts and select a glyph !", sizeStyle = "small") 
+        self.w = vanilla.Window((700, 210), "Interpol Steps Preview", minSize=(100, 200))
+
+        
+        self.w.infoOutput = TextBox((460,8,-70,20), "Open 2 Fonts + select a glyph.", alignment= "right", sizeStyle = "mini") 
         self.w.button = Button((-65, 2, 60, 20), "Options", sizeStyle = "small", callback=self.toggleOptions)       
         self.d = Drawer((125, 200), self.w, minSize=(125,100), maxSize=(125,200), preferredEdge='right', trailingOffset=15, leadingOffset=0)
         self.d.fontSize = TextBox((8, 5, 50, 10), "FONTSIZE", sizeStyle = "mini",)
         self.d.lineHeight = TextBox((62, 5, 100, 10), "LINEHEIGHT", sizeStyle = "mini",)
-        self.d.button3 = SquareButton((10,20,25,20), "-", sizeStyle = "small", callback=self.ChangePointSizeMinus)
-        self.d.button4 = SquareButton((35,20,25,20), "+", sizeStyle = "small", callback=self.ChangePointSizePlus)
-        self.d.button5 = SquareButton((65,20,25,20), "-", sizeStyle = "small", callback=self.ChangeLineheightMinus)
-        self.d.button6 = SquareButton((90,20,25,20), "+", sizeStyle = "small", callback=self.ChangeLineheightPlus)
-        self.d.interpolStepsText = TextBox((38,55,100,20), "Interpol Steps", sizeStyle = "small") 
-        self.d.interpolSteps = EditText((10,50,25,20), "4", sizeStyle = "small", callback=self.stepsCallback) 
-        self.d.extrapolStepsText = TextBox((38,75,100,20), "Extrapol Steps", sizeStyle = "small") 
-        self.d.extrapolSteps = EditText((10,70,25,20), "1", sizeStyle = "small", callback=self.stepsCallback)
-        
-        self.d.checkBoxInfo = TextBox((10,100,100,20), "Display Options:", sizeStyle = "mini") 
-        self.d.checkBoxMetrics = CheckBox((10,115,130,20), "Metrics", sizeStyle = "small", callback=self.Metrics) 
-        self.d.checkBoxR2L = CheckBox((10,130,130,20), "Right to Left", sizeStyle = "small", callback=self.R2L) 
-        self.d.checkBoxInverse = CheckBox((10,145,130,20), "Inverse", sizeStyle = "small", callback=self.Inverse)
-        self.d.checkBoxStroke = CheckBox((10,160,130,20), "Stroke", sizeStyle = "small", callback=self.Stroke) 
+        self.d.button3 = SquareButton((10,20,25,18), "-", sizeStyle = "small", callback=self.ChangePointSizeMinus)
+        self.d.button4 = SquareButton((35,20,25,18), "+", sizeStyle = "small", callback=self.ChangePointSizePlus)
+        self.d.button5 = SquareButton((65,20,25,18), "-", sizeStyle = "small", callback=self.ChangeLineheightMinus)
+        self.d.button6 = SquareButton((90,20,25,18), "+", sizeStyle = "small", callback=self.ChangeLineheightPlus)
+        self.d.interpolStepsText = TextBox((55,50,100,20), "Interpol Steps", sizeStyle = "mini")
+        self.d.extrapolStepsText = TextBox((55,75,100,20), "Extrapol Steps", sizeStyle = "mini")  
+        self.d.interpolStepper = EditIntStepper((10, 45, 45, 22), 4, callback=self.glyphChanged, minValue=1, maxValue=30, sizeStyle='regular')
+        self.d.extrapolStepper = EditIntStepper((10, 70, 45, 22), 1, callback=self.glyphChanged, minValue=1, maxValue=20, sizeStyle='regular') 
+        self.d.checkBoxInfo = TextBox((10,98,100,20), "Display Options:", sizeStyle = "mini") 
+        self.d.checkBoxMetrics = CheckBox((10,110,130,20), "Metrics", sizeStyle = "small", callback=self.Metrics) 
+        self.d.checkBoxR2L = CheckBox((10,125,130,20), "Right to Left", sizeStyle = "small", callback=self.R2L) 
+        self.d.checkBoxInverse = CheckBox((10,140,130,20), "Inverse", sizeStyle = "small", callback=self.Inverse)
+        self.d.checkBoxStroke = CheckBox((10,155,130,20), "Stroke", sizeStyle = "small", callback=self.Stroke)
         self.w.glyphLineView = MultiLineView((0, 25, 0, 0))
+        self.w.stemWidthOutputText = TextBox((10,8,500,20), "Beam Y-Pos:", sizeStyle = "mini") 
+        self.w.stemWidthBeamX = EditText((70,3,30,19), "200", sizeStyle = "small", callback=self.stepsCallback)
+        self.w.stemWidthOutput = TextBox((105,8,-205,13), "Measurements of the 1st stem will be displayed here.", sizeStyle = "mini")
+
         events.addObserver(self, "glyphChanged", "currentGlyphChanged")
         self.setUpBaseWindowBehavior()
         self.w.open()
         self.d.open()
-        
+
+
+        self.listOfValues = []
+                
     def toggleOptions(self, sender):
         self.d.toggle()
 
     def stepsCallback(self, sender):
         if CurrentGlyph() == None:
-            self.w.infoOutput.set("* Select a glyph !")
+            self.w.infoOutput.set("Select a glyph !")
             return
         else:
             self.glyphChanged(CurrentGlyph())
@@ -66,19 +74,37 @@ class InterpolateStepView(BaseWindowController):
     			c.decompose()
     	return glyph
 
+    def stemWidth(self, glyph):
+    	try:
+           val = int(self.w.stemWidthBeamX.get())
+    	except ValueError:
+           self.w.infoOutput.set("Pls enter a Number.") 
+           return 
+        BeamerPosition = int(self.w.stemWidthBeamX.get())
+        result = IntersectGlyphWithLine(glyph, ((-10, BeamerPosition), (glyph.width+10, BeamerPosition)), canHaveComponent=True, addSideBearings=False)
+        xValuesFromIntersection = [x[0] for x in result]
+        xValuesSorted = sorted(xValuesFromIntersection)
+        if not xValuesSorted:
+            self.w.stemWidthOutput.set("-------")
+            return 
+        else:
+            stemWidth = xValuesSorted[1] - xValuesSorted[0] 
+            self.listOfValues.append(int(stemWidth))
+
+
     def glyphChanged(self, info):
                 font = CurrentFont()
                 allfonts = AllFonts()
                 if font is None:
-                    self.w.infoOutput.set("* Open 2 Fonts !")
+                    self.w.infoOutput.set("Open 2 Fonts.")
                 if len(allfonts) != 2:
-                    self.w.infoOutput.set("* You need 2 Fonts !")                    
+                    self.w.infoOutput.set("You need 2 Fonts.")                    
                 else:   
                     glyph = CurrentGlyph()
 
                     if glyph is None:
                         glyphs = []
-                        self.w.infoOutput.set("* Select a glyph !")
+                        self.w.infoOutput.set("Select a glyph.")
                     else:
                         self.w.infoOutput.set("")
                         glyphName = glyph.name
@@ -99,16 +125,16 @@ class InterpolateStepView(BaseWindowController):
                             source2 = dummyInterpolFont2[glyphName]
                     
                             if not source1.isCompatible(source2, False):
-                                self.w.infoOutput.set("* Incompatible Glyphs *")
+                                self.w.infoOutput.set("Incompatible Glyphs")
                             else:  
                                 try:
-                                   val = int(self.d.interpolSteps.get())
-                                   val = int(self.d.extrapolSteps.get())
+                                   val = int(self.d.interpolStepper.get())
+                                   val = int(self.d.extrapolStepper.get())
                                 except ValueError:
-                                   self.w.infoOutput.set("* Please enter a Number !") 
+                                   self.w.infoOutput.set("Pls enter a Number.") 
                                    return 
-                                interpolationSteps = int(self.d.interpolSteps.get())+1
-                                extrapolateSteps = int(self.d.extrapolSteps.get())
+                                interpolationSteps = int(self.d.interpolStepper.get())+1
+                                extrapolateSteps = int(self.d.extrapolStepper.get())
                                 
                                 if interpolationSteps >= 0:    
                                     nameSteps = 0
@@ -118,13 +144,20 @@ class InterpolateStepView(BaseWindowController):
                                         dest = dummyInterpolFont1.newGlyph(name)
                                         factor = i / float(interpolationSteps)                
                                         dest.interpolate(factor, source1, source2)
+                                        self.stemWidth(dest)
                                         glyphs.append(dest)
+                                    newList = []
+                                    for key, item in enumerate(self.listOfValues): 
+                                        count = key+1
+                                        newList.append("%s:%s" % (str(count), str(item))) 
+                                    self.w.stemWidthOutput.set(str(newList).strip('[\']').replace('\', \'','        '))
+                                    self.listOfValues = []
                                 else:
-                                    self.w.infoOutput.set("* Minimum 1 Interpolation Step !")
+                                    self.w.infoOutput.set("Min. 1 Interpol. Step.")
                                     glyphs = []
                                     self.w.glyphLineView.set(glyphs)
                         else:
-                            self.w.infoOutput.set("* This glyph exists only in 1 Master !")
+                            self.w.infoOutput.set("Exists only in 1 Master.")
                             
                     self.w.glyphLineView.set(glyphs)
 
@@ -176,4 +209,4 @@ class InterpolateStepView(BaseWindowController):
 
    
 InterpolateStepView()
-
+help(EditIntStepper)
