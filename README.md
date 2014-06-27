@@ -1,5 +1,10 @@
 robofont-extensions
 ===================
+
+Interpol Steps Preview V.3.1
+-----------------------------------------------
+small Bugfixes
+
 Interpol Steps Preview V.3.0
 -----------------------------------------------
 Calculates/Measures the first stem of the selected glyph in 
