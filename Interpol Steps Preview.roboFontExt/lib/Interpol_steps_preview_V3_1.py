@@ -1,5 +1,5 @@
 """
-Interpol Steps Preview V 2.0
+Interpol Steps Preview V 3.1
 Lukas Schneider, 2014
 with a few lines of code of Frederik Berlaen's quick interpolate script.
 
@@ -35,7 +35,7 @@ class InterpolateStepView(BaseWindowController):
         self.d.interpolStepsText = TextBox((55,50,100,20), "Interpol Steps", sizeStyle = "mini")
         self.d.extrapolStepsText = TextBox((55,75,100,20), "Extrapol Steps", sizeStyle = "mini")  
         self.d.interpolStepper = EditIntStepper((10, 45, 45, 22), 4, callback=self.glyphChanged, minValue=1, maxValue=30, sizeStyle='regular')
-        self.d.extrapolStepper = EditIntStepper((10, 70, 45, 22), 1, callback=self.glyphChanged, minValue=1, maxValue=20, sizeStyle='regular') 
+        self.d.extrapolStepper = EditIntStepper((10, 70, 45, 22), 1, callback=self.glyphChanged, minValue=0, maxValue=20, sizeStyle='regular') 
         self.d.checkBoxInfo = TextBox((10,98,100,20), "Display Options:", sizeStyle = "mini") 
         self.d.checkBoxMetrics = CheckBox((10,110,130,20), "Metrics", sizeStyle = "small", callback=self.Metrics) 
         self.d.checkBoxR2L = CheckBox((10,125,130,20), "Right to Left", sizeStyle = "small", callback=self.R2L) 
@@ -84,12 +84,12 @@ class InterpolateStepView(BaseWindowController):
         result = IntersectGlyphWithLine(glyph, ((-10, BeamerPosition), (glyph.width+10, BeamerPosition)), canHaveComponent=True, addSideBearings=False)
         xValuesFromIntersection = [x[0] for x in result]
         xValuesSorted = sorted(xValuesFromIntersection)
-        if not xValuesSorted:
-            self.w.stemWidthOutput.set("-------")
-            return 
-        else:
+        try:
             stemWidth = xValuesSorted[1] - xValuesSorted[0] 
             self.listOfValues.append(int(stemWidth))
+        except IndexError:
+            return
+
 
 
     def glyphChanged(self, info):
@@ -107,23 +107,26 @@ class InterpolateStepView(BaseWindowController):
                         self.w.infoOutput.set("Select a glyph.")
                     else:
                         self.w.infoOutput.set("")
-                        glyphName = glyph.name
                         glyphs = []
                         font1 = allfonts[0]
                         font2 = allfonts[1]
                         dummyInterpolFont1 = font1.copy()
                         dummyInterpolFont2 = font2.copy()
-
-                        InterpolGlyph1 = dummyInterpolFont1[glyphName]
-                        self.decomposeGlyph(InterpolGlyph1)  
+                        glyphName = glyph.name
+                        if font1.has_key(glyphName):
+                            InterpolGlyph1 = dummyInterpolFont1[glyphName]
+                            self.decomposeGlyph(InterpolGlyph1)
+                        else:
+                            self.w.infoOutput.set("Exists only in 1 Master.")
+                            return  
                         
                         if font2.has_key(glyphName):            
                             InterpolGlyph2 = dummyInterpolFont2[glyphName]
                             self.decomposeGlyph(InterpolGlyph2)
-                    
+                
                             source1 = dummyInterpolFont1[glyphName]
                             source2 = dummyInterpolFont2[glyphName]
-                    
+                
                             if not source1.isCompatible(source2, False):
                                 self.w.infoOutput.set("Incompatible Glyphs")
                             else:  
@@ -135,7 +138,7 @@ class InterpolateStepView(BaseWindowController):
                                    return 
                                 interpolationSteps = int(self.d.interpolStepper.get())+1
                                 extrapolateSteps = int(self.d.extrapolStepper.get())
-                                
+                            
                                 if interpolationSteps >= 0:    
                                     nameSteps = 0
                                     for i in range(-extrapolateSteps, interpolationSteps+extrapolateSteps + 1, 1):
@@ -209,4 +212,3 @@ class InterpolateStepView(BaseWindowController):
 
    
 InterpolateStepView()
-help(EditIntStepper)
