@@ -2,7 +2,7 @@ robofont-extensions
 ===================
 Interpol Steps Preview V.3.0
 -----------------------------------------------
-Calculates/Measures the first stem of the glyph in 
+Calculates/Measures the first stem of the selected glyph in 
 all displayed Interpolations/Extrapolations.
 
 Adjust the Beam vertically by setting a Y-Value in the input box.
