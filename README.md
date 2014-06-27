@@ -4,6 +4,8 @@ robofont-extensions
 Interpol Steps Preview V.3.1
 -----------------------------------------------
 small Bugfixes
+if glyphs are incompatible etc. they won't be displayed -
+if incompatible etc. you get a small feedback in the window.
 
 Interpol Steps Preview V.3.0
 -----------------------------------------------
