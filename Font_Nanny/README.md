@@ -10,4 +10,4 @@ It simply colors suspicious glyphs in a font -
 when editing a single glyphs Glyph Nanny should be used for a 
 detailed report on outline problems etc.
 
-
+Note: Some options might need some time to perform especially when you have a large characterset.
