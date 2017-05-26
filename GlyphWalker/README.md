@@ -1,7 +1,7 @@
 GlyphWalker
 ===================
 
-• GlyphWalker lets you walk simultaneously back and forth trough all fonts while showing the current glyph.
+• GlyphWalker lets you walk simultaneously back and forth through all fonts while showing the current glyph.
   
   use buttons: < and >
 
