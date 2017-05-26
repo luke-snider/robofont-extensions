@@ -3,13 +3,11 @@ GlyphWalker
 
 • GlyphWalker lets you walk simultaneously back and forth trough all fonts while showing the current glyph.
   
-  use buttons < and >
+  use buttons: < and >
 
 • change display settings for all glyph windows (like outline/points/blues etc.)
 
-• zoom in and out 
-
-buttons + and -
+• zoom in and out  (buttons: + and -)
 
 • arrange/open Current Glyph window for all open fonts (button "open current (all")
 
