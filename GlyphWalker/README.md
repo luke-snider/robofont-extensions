@@ -11,7 +11,8 @@ GlyphWalker
 
 buttons + and -
 
-• arrange/open Current Glyph of all open fonts
+• arrange/open Current Glyph window for all open fonts (button "open current (all")
+
 
 • Font Bureau's .ufo overlay can be a nice addition when walking through the glyphs (see last screenshot)
 
